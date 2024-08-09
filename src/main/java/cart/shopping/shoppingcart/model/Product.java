@@ -22,6 +22,13 @@ public class Product {
     @DecimalMin(value = "0.00", message = "Price can not be a negative number!")
     private Double price;
 
+    @ManyToOne
+    @JoinColumn(name = "basket_id", referencedColumnName = "id")
+    private Basket basket;
+
+    @Column(name = "quantity")
+    private Integer quantity;
+
     public Product() {
     }
 
@@ -55,5 +62,23 @@ public class Product {
 
     public void setPrice(Double price) {
         this.price = price;
+    }
+
+    public Basket getBasket() {
+        return basket;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
+
+    public void setBasket(Basket basket) {
+        this.basket = basket;
+
+
     }
 }

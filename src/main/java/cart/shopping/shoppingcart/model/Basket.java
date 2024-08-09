@@ -5,7 +5,6 @@ import jakarta.transaction.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Entity
@@ -18,8 +17,8 @@ public class Basket {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @OneToMany(mappedBy = "basket", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BasketProduct> products = new ArrayList<>();
+    @OneToMany(mappedBy = "basket", cascade = CascadeType.ALL)
+    private List<Product> products = new ArrayList<>();
 
     @Column(name = "total_amount")
     private Double totalPrice;
@@ -35,11 +34,11 @@ public class Basket {
         this.id = id;
     }
 
-    public List<BasketProduct> getProducts() {
+    public List<Product> getProducts() {
         return products;
     }
 
-    public void setProducts(List<BasketProduct> products) {
+    public void setProducts(List<Product> products) {
         this.products = products;
     }
 

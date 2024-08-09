@@ -1,13 +1,13 @@
 package cart.shopping.shoppingcart.service.Impl;
 
 import cart.shopping.shoppingcart.model.Basket;
-import cart.shopping.shoppingcart.model.BasketProduct;
 import cart.shopping.shoppingcart.model.Product;
-import cart.shopping.shoppingcart.repository.BasketProductRepository;
 import cart.shopping.shoppingcart.repository.BasketRepository;
+import cart.shopping.shoppingcart.repository.ProductRepository;
 import cart.shopping.shoppingcart.service.BasketService;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -18,49 +18,42 @@ public class BasketServiceImpl implements BasketService {
 
     private final ModelMapper modelMapper;
     private final BasketRepository basketRepository;
-    private final BasketProductRepository basketProductRepository;
+    private final ProductRepository productRepository;
+
 
     private Basket initBasket;
 
-    public BasketServiceImpl(ModelMapper modelMapper, BasketRepository basketRepository, BasketProductRepository basketProductRepository) {
+    @Autowired
+    public BasketServiceImpl(ModelMapper modelMapper, BasketRepository basketRepository, ProductRepository productRepository) {
         this.modelMapper = modelMapper;
         this.basketRepository = basketRepository;
-        this.basketProductRepository = basketProductRepository;
+        this.productRepository = productRepository;
     }
 
-    private Basket initBasket() {
-        return basketRepository.findAll().stream().findFirst().orElseGet(() -> {
-            Basket initBasket = new Basket();
-            return basketRepository.saveAndFlush(initBasket);
-        });
+    @Override
+    public Basket getBasket() {
+        return basketRepository.findAll().stream()
+                .findFirst()
+                .orElseGet(() -> basketRepository.save(new Basket()));
     }
 
 
     @Override
     public Basket addProductToBasket(UUID basketId, Product product, int quantity) {
-        if (initBasket == null) {
-            initBasket = initBasket();
-        }
 
-        Basket basket = basketRepository.findById(initBasket.getId()).orElse(initBasket);
+        Basket basket = basketRepository.findById(basketId)
+                .orElseThrow(() -> new RuntimeException("Basket not found"));
+
+        product.setQuantity(quantity);
+        product.setBasket(basket);
 
 
 
-        if(basket == null) {
-            Basket basketCreate = new Basket();
-            return this.basketRepository.saveAndFlush(basketCreate);
-        }
-            BasketProduct basketProduct = new BasketProduct();
-            basketProduct.setProduct(product);
-            basketProduct.setQuantity(quantity);
-            basketProduct.setBasket(basket);
+        productRepository.save(product);
+        basketRepository.save(basket);
 
-            basket.getProducts().add(basketProduct);
-            basketProductRepository.save(basketProduct);
-            basketRepository.save(basket);
-
-            return basket;
-        }
+        return basket;
+    }
 
 
     }
