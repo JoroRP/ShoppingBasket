@@ -8,6 +8,8 @@ import java.util.UUID;
 public interface BasketService {
 
     Basket getBasket();
-    Basket addProductToBasket(UUID basketId, Product product, int quantity);
+    void addProductToBasket(UUID basketId, Long productId, int quantity);
+    void removeProductFromBasket(UUID basketId, Long productId);
+    Double calculateTotalPrice(UUID basketId);
 
 }

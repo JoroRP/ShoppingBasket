@@ -49,4 +49,14 @@ public class Basket {
     public void setTotalPrice(Double totalPrice) {
         this.totalPrice = totalPrice;
     }
+
+    public void addProduct(Product product) {
+        products.add(product);
+        product.setBasket(this);
+    }
+
+    public void removeProduct(Product product) {
+        products.remove(product);
+        product.setBasket(null);
+    }
 }

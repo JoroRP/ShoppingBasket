@@ -10,6 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -39,20 +40,54 @@ public class BasketServiceImpl implements BasketService {
 
 
     @Override
-    public Basket addProductToBasket(UUID basketId, Product product, int quantity) {
+    public void addProductToBasket(UUID basketId, Long productId, int quantity) {
 
         Basket basket = basketRepository.findById(basketId)
                 .orElseThrow(() -> new RuntimeException("Basket not found"));
 
-        product.setQuantity(quantity);
-        product.setBasket(basket);
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
 
+        Optional<Product> existingProductOpt = basket.getProducts().stream()
+                .filter(p -> p.getId().equals(productId))
+                .findFirst();
 
+        if (existingProductOpt.isPresent()) {
+            Product existingProduct = existingProductOpt.get();
+            existingProduct.setQuantity(existingProduct.getQuantity() + quantity);
+        } else {
+            product.setQuantity(quantity);
+            basket.addProduct(product);
+        }
 
-        productRepository.save(product);
+        basketRepository.saveAndFlush(basket);
+    }
+
+    @Override
+    public void removeProductFromBasket(UUID basketId, Long productId) {
+        Basket basket = basketRepository.findById(basketId)
+                .orElseThrow(() -> new RuntimeException("Basket not found"));
+
+        Optional<Product> existingProductOpt = basket.getProducts().stream()
+                .filter(p -> p.getId().equals(productId))
+                .findFirst();
+
+        if (existingProductOpt.isPresent()) {
+            Product existingProduct = existingProductOpt.get();
+            basket.removeProduct(existingProduct);
+        }
+
         basketRepository.save(basket);
+    }
 
-        return basket;
+    @Override
+    public Double calculateTotalPrice(UUID basketId) {
+        Basket basket = basketRepository.findById(basketId)
+                .orElseThrow(() -> new RuntimeException("Basket not found"));
+
+        return basket.getProducts().stream()
+                .mapToDouble(product -> product.getPrice() * product.getQuantity())
+                .sum();
     }
 
 
