@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/basket")
 public class Basketcontroller {
 
     private final BasketService basketService;
@@ -25,8 +24,8 @@ public class Basketcontroller {
     }
 
     @GetMapping("/basket")
-    public String viewBasket() {
+    public String viewBasket(Model model) {
 
-        return "Basket";
+        return "basket";
     }
 }
