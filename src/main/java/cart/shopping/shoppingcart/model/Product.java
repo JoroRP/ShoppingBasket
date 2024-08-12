@@ -23,7 +23,7 @@ public class Product {
     private Double price;
 
     @ManyToOne
-    @JoinColumn(name = "basket_id", referencedColumnName = "id")
+    @JoinColumn(name = "basket_id", referencedColumnName = "id",nullable = true)
     private Basket basket;
 
     @Column(name = "quantity")
